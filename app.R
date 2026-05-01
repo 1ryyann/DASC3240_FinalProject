@@ -60,12 +60,12 @@ ui <- fluidPage(
              br(),
              h4("The Dataset"),
              p("- 303 patients from Cleveland Clinic Foundation"),
-             p("- 13 clinical variables (age, blood pressure, cholesterol, etc.)"),
+             p("- 13 clinical variables"),
              p("- Published by Detrano et al. (1989), American Journal of Cardiology"),
-             p("- License: CC BY 4.0 (free to share and adapt with attribution)"),
+             p("- License: CC BY 4.0"),
              br(),
              h4("Data Cleaning"),
-             p("Missing values in 'ca' and 'thal' were removed. Categorical variables converted to factors with descriptive labels. Target variable converted to binary: Disease vs No Disease.")
+             p("Missing values removed. Categorical variables converted to factors. Target variable converted to binary: Disease vs No Disease.")
     ),
     
     # ========== TAB 2: Data Exploration ==========
@@ -86,8 +86,10 @@ ui <- fluidPage(
                ),
                mainPanel(
                  h4("Age vs Selected Variable"),
-                 p("Hover for details. X-axis is always Age. Change the Y-axis to explore different relationships."),
-                 plotlyOutput("explore_plot")
+                 plotlyOutput("explore_plot"),
+                 br(),
+                 h4("Distribution of All Variables by Diagnosis"),
+                 plotlyOutput("box_plot")
                )
              )
     ),
@@ -111,11 +113,7 @@ ui <- fluidPage(
                ),
                mainPanel(
                  h4("Patient Profile vs. Diagnosed Cases"),
-                 p("Red dashed lines show your patient. Hollow circles show similar patients."),
-                 plotlyOutput("risk_plot"),
-                 br(),
-                 h4("Variable Comparison: Disease vs No Disease"),
-                 plotlyOutput("compare_plot")
+                 plotlyOutput("risk_plot")
                )
              )
     ),
@@ -124,20 +122,23 @@ ui <- fluidPage(
     tabPanel("Key Findings",
              h3("What We Discovered"),
              br(),
-             h4("1. Chest Pain Type Matters"),
-             p("Patients with asymptomatic chest pain are most likely to have heart disease."),
+             h4("1. Chest Pain Type"),
+             p("Asymptomatic patients are most likely to have heart disease."),
              br(),
-             h4("2. Max Heart Rate Tells a Story"),
-             p("Heart disease patients achieve lower maximum heart rates during exercise."),
+             h4("2. Max Heart Rate"),
+             p("Disease patients have lower max heart rates (139 vs 158 bpm)."),
              br(),
-             h4("3. ST Depression is a Key Indicator"),
-             p("Higher ST segment depression is consistently associated with heart disease."),
+             h4("3. ST Depression"),
+             p("Higher ST depression is associated with disease (1.6 vs 0.8 mm)."),
+             br(),
+             h4("4. Exercise Angina"),
+             p("Exercise-induced angina is a strong predictor of heart disease."),
              br(),
              h4("Conclusion"),
              p("Non-invasive exercise testing can effectively identify high-risk patients."),
              br(),
              h4("Limitations"),
-             p("Data from 1989, 303 patients, single clinic. Findings may not generalize.")
+             p("Data from 1989, 303 patients, single clinic.")
     )
   )
 )
@@ -153,20 +154,52 @@ server <- function(input, output) {
       filter(age >= input$age_range[1], age <= input$age_range[2])
   })
   
-  # TAB 2: Scatter plot (X fixed to age, Y selectable)
+  # TAB 2: Scatter plot
   output$explore_plot <- renderPlotly({
     p <- ggplot(filtered_data(),
                 aes(x = age, y = .data[[input$yvar]],
                     color = .data[[input$color_by]])) +
       geom_point(size = 2, alpha = 0.7) +
       stat_smooth(method = "lm", se = FALSE) +
+      scale_color_manual(values = c("No Disease" = "#2E86AB",
+                                    "Disease" = "#A23B72",
+                                    "Female" = "#FFB6C1",
+                                    "Male" = "#4682B4")) +
       theme_minimal() +
       labs(x = "Age (years)", y = input$yvar)
     
     ggplotly(p)
   })
   
-  # TAB 3: Risk plot
+  # TAB 2: Boxplots
+  output$box_plot <- renderPlotly({
+    comp <- heart_clean %>%
+      select(heart_disease, age, trestbps, chol, thalach, oldpeak) %>%
+      pivot_longer(-heart_disease, names_to = "variable", values_to = "value") %>%
+      mutate(variable = factor(variable,
+                               levels = c("age", "trestbps", "chol", "thalach", "oldpeak"),
+                               labels = c("Age (years)", "Blood Pressure (mm Hg)", "Cholesterol (mg/dl)",
+                                          "Max Heart Rate (bpm)", "ST Depression (mm)")))
+    
+    p <- ggplot(comp, aes(x = heart_disease, y = value, fill = heart_disease)) +
+      geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+      geom_jitter(width = 0.2, alpha = 0.2, size = 0.5) +
+      facet_wrap(~ variable, scales = "free_y", nrow = 1) +
+      scale_fill_manual(values = c("No Disease" = "#2E86AB",
+                                   "Disease" = "#A23B72")) +
+      theme_minimal() +
+      theme(
+        legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+        strip.text = element_text(size = 10, face = "bold")
+      ) +
+      labs(x = "", y = "")
+    
+    ggplotly(p) %>%
+      layout(margin = list(b = 80))
+  })
+  
+  # TAB 3: Risk plot (bigger)
   output$risk_plot <- renderPlotly({
     similar <- heart_clean %>%
       filter(sex == input$p_sex,
@@ -181,32 +214,15 @@ server <- function(input, output) {
                  aes(x = age, y = thalach),
                  color = "black", size = 3, shape = 1) +
       geom_vline(xintercept = input$p_age,
-                 linetype = "dashed", color = "red", size = 1) +
+                 linetype = "dashed", color = "#D64550", size = 1) +
       geom_hline(yintercept = input$p_thalach,
-                 linetype = "dashed", color = "red", size = 1) +
+                 linetype = "dashed", color = "#D64550", size = 1) +
       scale_color_manual(values = c("No Disease" = "#2E86AB",
                                     "Disease" = "#A23B72")) +
       theme_minimal() +
       labs(x = "Age (years)", y = "Max Heart Rate (bpm)")
     
-    ggplotly(p)
-  })
-  
-  # TAB 3: Comparison plot
-  output$compare_plot <- renderPlotly({
-    comp <- heart_clean %>%
-      select(heart_disease, age, trestbps, chol, thalach, oldpeak) %>%
-      pivot_longer(-heart_disease, names_to = "variable", values_to = "value")
-    
-    p <- ggplot(comp, aes(x = heart_disease, y = value, fill = heart_disease)) +
-      geom_boxplot(alpha = 0.7) +
-      facet_wrap(~ variable, scales = "free_y") +
-      scale_fill_manual(values = c("No Disease" = "#2E86AB",
-                                   "Disease" = "#A23B72")) +
-      theme_minimal() +
-      theme(legend.position = "none")
-    
-    ggplotly(p)
+    ggplotly(p, height = 500)
   })
 }
 
