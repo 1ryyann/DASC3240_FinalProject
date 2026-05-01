@@ -52,7 +52,7 @@ ui <- fluidPage(
   
   tabsetPanel(
     
-    # ========== TAB 1: Introduction (Member 1 — 3 min) ==========
+    # ========== TAB 1: Introduction ==========
     tabPanel("Introduction",
              h3("Exploring Heart Disease Risk Factors"),
              br(),
@@ -68,35 +68,31 @@ ui <- fluidPage(
              p("Missing values in 'ca' and 'thal' were removed. Categorical variables converted to factors with descriptive labels. Target variable converted to binary: Disease vs No Disease.")
     ),
     
-    # ========== TAB 2: Data Exploration (Member 2 — 4 min) ==========
+    # ========== TAB 2: Data Exploration ==========
     tabPanel("Data Exploration",
              sidebarLayout(
                sidebarPanel(
                  h4("Explore the Data"),
-                 selectInput("xvar", "X-axis Variable:",
-                             choices = c("Age" = "age",
+                 selectInput("yvar", "Y-axis Variable:",
+                             choices = c("Max Heart Rate" = "thalach",
                                          "Blood Pressure" = "trestbps",
                                          "Cholesterol" = "chol",
-                                         "Max Heart Rate" = "thalach",
                                          "ST Depression" = "oldpeak")),
                  selectInput("color_by", "Color by:",
                              choices = c("Heart Disease" = "heart_disease",
-                                         "Sex" = "sex",
-                                         "Chest Pain" = "cp")),
+                                         "Sex" = "sex")),
                  sliderInput("age_range", "Filter by Age:",
                              min = 29, max = 77, value = c(29, 77))
                ),
                mainPanel(
-                 h4("Interactive Scatter Plot"),
-                 p("Hover for details. Use the controls to explore relationships."),
-                 plotlyOutput("explore_plot"),
-                 br(),
-                 p(strong("What to notice:"), " Look at how patients with heart disease (red) differ from healthy patients (blue). Which variables show the clearest separation?")
+                 h4("Age vs Selected Variable"),
+                 p("Hover for details. X-axis is always Age. Change the Y-axis to explore different relationships."),
+                 plotlyOutput("explore_plot")
                )
              )
     ),
     
-    # ========== TAB 3: Risk Factor Analysis (Member 3 — 4 min) ==========
+    # ========== TAB 3: Risk Factor Analysis ==========
     tabPanel("Risk Factor Analysis",
              sidebarLayout(
                sidebarPanel(
@@ -124,21 +120,21 @@ ui <- fluidPage(
              )
     ),
     
-    # ========== TAB 4: Key Findings (Member 4 — 3 min) ==========
+    # ========== TAB 4: Key Findings ==========
     tabPanel("Key Findings",
              h3("What We Discovered"),
              br(),
              h4("1. Chest Pain Type Matters"),
-             p("Patients with asymptomatic chest pain are most likely to have heart disease. This is dangerous because they don't feel symptoms."),
+             p("Patients with asymptomatic chest pain are most likely to have heart disease."),
              br(),
              h4("2. Max Heart Rate Tells a Story"),
-             p("Heart disease patients achieve lower maximum heart rates during exercise — a sign of reduced cardiac function."),
+             p("Heart disease patients achieve lower maximum heart rates during exercise."),
              br(),
              h4("3. ST Depression is a Key Indicator"),
-             p("Higher ST segment depression during exercise is consistently associated with heart disease diagnosis."),
+             p("Higher ST segment depression is consistently associated with heart disease."),
              br(),
              h4("Conclusion"),
-             p("Non-invasive exercise testing can effectively identify high-risk patients. Chest pain assessment combined with heart rate and ST segment analysis provides valuable diagnostic information."),
+             p("Non-invasive exercise testing can effectively identify high-risk patients."),
              br(),
              h4("Limitations"),
              p("Data from 1989, 303 patients, single clinic. Findings may not generalize.")
@@ -151,24 +147,21 @@ ui <- fluidPage(
 # ============================================================
 server <- function(input, output) {
   
-  # TAB 2: Filtered data + scatter plot
+  # TAB 2: Filtered data
   filtered_data <- reactive({
     heart_clean %>%
       filter(age >= input$age_range[1], age <= input$age_range[2])
   })
   
+  # TAB 2: Scatter plot (X fixed to age, Y selectable)
   output$explore_plot <- renderPlotly({
     p <- ggplot(filtered_data(),
-                aes(x = .data[[input$xvar]], y = thalach,
+                aes(x = age, y = .data[[input$yvar]],
                     color = .data[[input$color_by]])) +
       geom_point(size = 2, alpha = 0.7) +
       stat_smooth(method = "lm", se = FALSE) +
-      scale_color_manual(values = c("No Disease" = "#2E86AB",
-                                    "Disease" = "#A23B72",
-                                    "Female" = "#FFB6C1",
-                                    "Male" = "#4682B4")) +
       theme_minimal() +
-      labs(x = input$xvar, y = "Max Heart Rate (bpm)")
+      labs(x = "Age (years)", y = input$yvar)
     
     ggplotly(p)
   })
