@@ -9,19 +9,19 @@ library(plotly)
 library(dplyr)
 library(tidyr)
 
-# ============================================================
-# DATA LOADING & CLEANING
-# ============================================================
+
 col_names <- c(
   "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
   "thalach", "exang", "oldpeak", "slope", "ca", "thal", "num"
 )
 
+# Load data and treating ? as missing value
 heart_raw <- read.csv("processed.cleveland.data",
                       header = FALSE,
                       col.names = col_names,
                       na.strings = "?")
 
+# Clean data, convert to factors, create binary target and remove NA
 heart_clean <- heart_raw %>%
   mutate(
     sex = factor(sex, levels = c(0, 1), labels = c("Female", "Male")),
@@ -42,9 +42,8 @@ heart_clean <- heart_raw %>%
   ) %>%
   na.omit()
 
-# ============================================================
+
 # UI
-# ============================================================
 ui <- fluidPage(
   titlePanel("Heart Disease Risk Explorer"),
   h4("UCI Cleveland Dataset — CC BY 4.0"),
@@ -52,7 +51,7 @@ ui <- fluidPage(
   
   tabsetPanel(
     
-    # ========== TAB 1: Introduction ==========
+    # Tab 1
     tabPanel("Introduction",
              h3("Exploring Heart Disease Risk Factors"),
              br(),
@@ -68,7 +67,7 @@ ui <- fluidPage(
              p("Missing values removed. Categorical variables converted to factors. Target variable converted to binary: Disease vs No Disease.")
     ),
     
-    # ========== TAB 2: Data Exploration ==========
+    # Tab 2
     tabPanel("Data Exploration",
              sidebarLayout(
                sidebarPanel(
@@ -94,7 +93,7 @@ ui <- fluidPage(
              )
     ),
     
-    # ========== TAB 3: Risk Factor Analysis ==========
+    # Tab 3
     tabPanel("Risk Factor Analysis",
              sidebarLayout(
                sidebarPanel(
@@ -118,7 +117,7 @@ ui <- fluidPage(
              )
     ),
     
-    # ========== TAB 4: Key Findings ==========
+    # Tab 4
     tabPanel("Key Findings",
              h3("What We Discovered"),
              br(),
@@ -143,18 +142,16 @@ ui <- fluidPage(
   )
 )
 
-# ============================================================
 # SERVER
-# ============================================================
 server <- function(input, output) {
   
-  # TAB 2: Filtered data
+  # Updates when age slider changes
   filtered_data <- reactive({
     heart_clean %>%
       filter(age >= input$age_range[1], age <= input$age_range[2])
   })
   
-  # TAB 2: Scatter plot
+  # Scatter plot to see Age vs choosable Y variable
   output$explore_plot <- renderPlotly({
     p <- ggplot(filtered_data(),
                 aes(x = age, y = .data[[input$yvar]],
@@ -171,7 +168,7 @@ server <- function(input, output) {
     ggplotly(p)
   })
   
-  # TAB 2: Boxplots
+  # Boxplots to compare all variables by disease status
   output$box_plot <- renderPlotly({
     comp <- heart_clean %>%
       select(heart_disease, age, trestbps, chol, thalach, oldpeak) %>%
@@ -199,7 +196,7 @@ server <- function(input, output) {
       layout(margin = list(b = 80))
   })
   
-  # TAB 3: Risk plot (bigger)
+  # Risk profile, compare user's patient to other patients
   output$risk_plot <- renderPlotly({
     similar <- heart_clean %>%
       filter(sex == input$p_sex,
@@ -207,12 +204,15 @@ server <- function(input, output) {
              exang == input$p_exang)
     
     p <- ggplot() +
+      # All patients in background
       geom_point(data = heart_clean,
                  aes(x = age, y = thalach, color = heart_disease),
                  alpha = 0.4) +
+      # Similar patients highlighted as black circles
       geom_point(data = similar,
                  aes(x = age, y = thalach),
                  color = "black", size = 3, shape = 1) +
+      # Reference lines for user's patient
       geom_vline(xintercept = input$p_age,
                  linetype = "dashed", color = "#D64550", size = 1) +
       geom_hline(yintercept = input$p_thalach,
@@ -226,7 +226,4 @@ server <- function(input, output) {
   })
 }
 
-# ============================================================
-# RUN APP
-# ============================================================
 shinyApp(ui = ui, server = server)
