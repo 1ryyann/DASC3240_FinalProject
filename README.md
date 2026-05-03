@@ -3,7 +3,7 @@
 A Shiny app for interactive exploration of the UCI Heart Disease dataset.
 
 
-## 📊 Dataset
+## Dataset
 
 - **Source:** UCI Machine Learning Repository (https://archive-beta.ics.uci.edu/dataset/45/heart+disease)
 - **Study:** Detrano et al. (1989), American Journal of Cardiology
@@ -11,14 +11,14 @@ A Shiny app for interactive exploration of the UCI Heart Disease dataset.
 - **Variables:** 13 clinical features
 - **Target:** Heart disease diagnosis (binary: Disease / No Disease)
 
-## 📝 License
+##  License
 
 **Dataset:** Creative Commons Attribution 4.0 International (CC BY 4.0)
 
-This license allows you to:
-- **Share** — copy and redistribute the material in any format
-- **Adapt** — remix, transform, and build upon the material for any purpose
-- **Requirement** — you must give appropriate credit to the UCI Machine Learning Repository and the original authors
+This license allows to:
+- Share (copy and redistribute the material in any format)
+- Adapt (remix, transform, and build upon the material for any purpose)
+- Requirement (must give appropriate credit to the UCI Machine Learning Repository and the original authors)
 
 **Code:** MIT License
 
