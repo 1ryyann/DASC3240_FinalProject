@@ -13,7 +13,7 @@ A Shiny app for interactive exploration of the UCI Heart Disease dataset.
 
 ##  License
 
-**Dataset:** Creative Commons Attribution 4.0 International (CC BY 4.0)
+Creative Commons Attribution 4.0 International (CC BY 4.0)
 
 This license allows to:
 - Share (copy and redistribute the material in any format)
