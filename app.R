@@ -1,8 +1,3 @@
-# ============================================================
-# DASC3240 Final Project: Heart Disease Risk Explorer
-# Dataset: UCI Heart Disease (Cleveland) - License: CC BY 4.0
-# ============================================================
-
 library(shiny)
 library(ggplot2)
 library(plotly)
