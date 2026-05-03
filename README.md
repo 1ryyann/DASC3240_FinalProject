@@ -2,9 +2,6 @@
 
 A Shiny app for interactive exploration of the UCI Heart Disease dataset.
 
-## 🎯 Question
-
-**Which patient characteristics are most strongly associated with a diagnosis of heart disease?**
 
 ## 📊 Dataset
 
