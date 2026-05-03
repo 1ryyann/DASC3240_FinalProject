@@ -132,7 +132,9 @@ ui <- fluidPage(
              p("Non-invasive exercise testing can effectively identify high-risk patients."),
              br(),
              h4("Limitations"),
-             p("Data from 1989, 303 patients, single clinic.")
+             p("- Temporal Relevance: data collected in 1989"),
+             p("- Sample Size Constraints: 303 patients"),
+             p("- Geographic & Demographic Scope: single clinic")
     )
   )
 )
