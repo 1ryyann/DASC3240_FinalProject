@@ -5,11 +5,11 @@ A Shiny app for interactive exploration of the UCI Heart Disease dataset.
 
 ## Dataset
 
-- **Source:** UCI Machine Learning Repository (https://archive-beta.ics.uci.edu/dataset/45/heart+disease)
-- **Study:** Detrano et al. (1989), American Journal of Cardiology
-- **Patients:** 303 from Cleveland Clinic Foundation
-- **Variables:** 13 clinical features
-- **Target:** Heart disease diagnosis (binary: Disease / No Disease)
+- Source: UCI Machine Learning Repository (https://archive-beta.ics.uci.edu/dataset/45/heart+disease)
+- Study: Detrano et al. (1989), American Journal of Cardiology
+- Patients: 303 from Cleveland Clinic Foundation
+- Variables: 13 clinical features
+- Target: Heart disease diagnosis (binary: Disease / No Disease)
 
 ##  License
 
