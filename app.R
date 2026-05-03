@@ -50,16 +50,47 @@ ui <- fluidPage(
     tabPanel("Introduction",
              h3("Exploring Heart Disease Risk Factors"),
              br(),
-             p(strong("Question:"), "Which patient characteristics are most strongly associated with a diagnosis of heart disease?"),
-             br(),
-             h4("The Dataset"),
-             p("- 303 patients from Cleveland Clinic Foundation"),
-             p("- 13 clinical variables"),
-             p("- Published by Detrano et al. (1989), American Journal of Cardiology"),
-             p("- License: CC BY 4.0"),
-             br(),
-             h4("Data Cleaning"),
-             p("Missing values removed. Categorical variables converted to factors. Target variable converted to binary: Disease vs No Disease.")
+             p(strong("Core Objective:"), "This application aims to identify and visualize clinical characteristics most strongly associated with heart disease diagnosis. By analyzing these predictors, we can better understand the factors driving cardiovascular risk."),
+             
+             hr(),
+             
+             fluidRow(
+               column(6,
+                      h4("1. Dataset Context"),
+                      p(strong("Source:"), "UC Irvine Machine Learning Repository (Cleveland Dataset)."),
+                      p(strong("Collection Methodology:"), "Data was collected via non-invasive clinical evaluations at the Cleveland Clinic Foundation, including resting ECGs and exercise stress tests."),
+                      
+                      p(strong("The 13 Clinical Predictors:")),
+                      tags$ul(
+                        tags$li("Age, Sex, Chest Pain Type (cp)"),
+                        tags$li("Resting Blood Pressure (trestbps), Cholesterol (chol)"),
+                        tags$li("Fasting Blood Sugar (fbs), Resting ECG (restecg)"),
+                        tags$li("Max Heart Rate (thalach), Exercise Angina (exang)"),
+                        tags$li("ST Depression (oldpeak), ST Slope (slope)"),
+                        tags$li("Major Vessels (ca), Thalassemia (thal)")
+                      ),
+                      
+                      h4("2. Licensing"),
+                      p(strong("License:"), "Creative Commons Attribution 4.0 International (CC BY 4.0)."),
+                      p(em("License Details:"), "This allows for sharing and adaptation with proper attribution to Detrano et al. (1989). We have documented all transformations to ensure transparency.")
+               ),
+               
+               column(6,
+                      h4("3. Data Preparation"),
+                      p("Each cleaning step was chosen to improve the accuracy and interpretability of our visualizations:"),
+                      tags$ul(
+                        tags$li(strong("Missing Value Handling:"), "6 observations with missing 'ca' or 'thal' values were removed. ", 
+                                em("Reason: Dropping these ensures our statistical trends aren't skewed by incomplete records.")),
+                        
+                        tags$li(strong("Data Type Conversion:"), "Numeric codes were mapped to labels (e.g., '1' to 'Male'). ", 
+                                em("Reason: This removes the need for users to reference a codebook while viewing plots.")),
+                        
+                        tags$li(strong("Target Transformation:"), "Simplified severity (0-4) into a binary 'Disease' vs 'No Disease' factor. ", 
+                                em("Reason: Binary classification provides a clearer 'Yes/No' signal for identifying primary risk factors."))
+                      ),
+                      p(strong("Final Dataset:"), "297 patients.")
+               )
+             )
     ),
     
     # Tab 2
